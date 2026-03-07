@@ -1,0 +1,233 @@
+[
+{
+"id":"riverton_001",
+"market":{"city":"Riverton","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":335000,
+"beds":3,
+"baths":2,
+"sqft":1740,
+"property_subtype":"single-family",
+"features":[
+"spacious primary suite",
+"renovated bathroom",
+"stainless steel appliances",
+"granite countertops",
+"enclosed porch",
+"fenced backyard",
+"oversized garage",
+"heated workshop",
+"RV carport"
+]},
+"output":{
+"headline":"Updated 3-Bedroom Riverton Home with Enclosed Porch and Oversized Garage",
+"mls_description":"Welcome to one level comfort! This 3 Bed, 2 Bath home includes a spacious primary suite with a renovated bathroom (in 2014) and two closets. The kitchen includes newer stainless-steel appliances and dazzling granite counters. The two guest bedrooms feature newer laminate flooring from Gales. The open concept kitchen, dining, living areas are perfect for entertaining. The extraordinary enclosed porch is ideal for morning coffee or evening drinks as you savor your well landscaped and fenced back yard. There is an attached oversized garage with two individual stalls and a heated workshop area. The roof is only a couple years old and the RV carport is included as well."
+}
+},
+
+{
+"id":"riverton_002",
+"market":{"city":"Riverton","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":143500,
+"beds":2,
+"baths":1,
+"sqft":818,
+"property_subtype":"single-family",
+"features":[
+"move-in ready",
+"detached garage",
+"brand new roof",
+"appliances included"
+]},
+"output":{
+"headline":"Affordable Riverton Home with Detached Garage and New Roof",
+"mls_description":"Great Starter or Investment Home! This 2 Bedroom, 1 Bathroom home is move-in ready and affordable! Finding anything under $150,000 is a challenge in today’s market and not only is this home priced under $150,000, but it also includes a detached 1 car garage and a brand new roof! With appliances also included, this home is ready to go!"
+}
+},
+
+{
+"id":"lander_003",
+"market":{"city":"Lander","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":299000,
+"beds":1,
+"baths":1,
+"sqft":576,
+"property_subtype":"rural residential",
+"features":[
+"studio living quarters",
+"barn stalls",
+"cross fencing",
+"10 acres",
+"mini split heating",
+"2500 gallon cisterns"
+]},
+"output":{
+"headline":"10-Acre Lander Horse Property with Barn and Studio Living Quarters",
+"mls_description":"Fantastic horse property with amazing views! This one-of-a-kind property is the perfect fit for the horse owner on a budget! Built in 2021, the living quarters features part barn, part studio living quarters. Featuring a full kitchen, a bathroom/laundry area and an open living/sleeping area, the living side is certainly functional. Supported by two 2500-gallon cisterns and a mini split for heating/cooling, this side has everything you need to be happy. The other half of the building features 2 covered barn stall areas. With multiple cross fenced sections and 10 acres of amazing views, this property is ideal for your four-legged friends (and you)! Live in the studio section or build your dream home—either way, you can’t go wrong at this location."
+}
+},
+
+{
+"id":"riverton_004",
+"market":{"city":"Riverton","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":349500,
+"beds":4,
+"baths":2.75,
+"sqft":2704,
+"property_subtype":"single-family",
+"features":[
+"hardwood floors",
+"new carpet",
+"covered patio",
+"fenced yard",
+"automatic sprinklers",
+"detached garage"
+]},
+"output":{
+"headline":"Well-Maintained 4-Bedroom Riverton Home with Private Primary Suite",
+"mls_description":"Well Maintained 4 Bed, 2.75 Bath Home. As you pull up to this home, you will immediately be impressed with the pride of ownership! With automatic sprinklers in the front and back, your yard will be the envy of the neighborhood. Entering the home, you will notice the well cared for hardwood floors and new carpet. The main level features all of the bedrooms and bathrooms, two family rooms, the kitchen and the laundry. More spacious than it appears from the street, this home has over 2,000 square feet on the main level—including a private primary suite! The partial basement is a great area to use as a game room or TV/Movie area. The backyard features a covered back patio and a privacy fenced yard—perfect for summer BBQs. Finally, there is an oversized one car detached garage."
+}
+},
+
+{
+"id":"riverton_005",
+"market":{"city":"Riverton","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":475000,
+"beds":4,
+"baths":1,
+"sqft":2352,
+"property_subtype":"rural residential",
+"features":[
+"mountain views",
+"updated kitchen",
+"new flooring",
+"tankless water heater",
+"irrigation rights",
+"heated 1700 sq ft shop"
+]},
+"output":{
+"headline":"Updated Riverton Home with Acreage, Mountain Views, and Large Shop",
+"mls_description":"Updated home with acreage! Don’t be fooled by the year built of 1957, this home looks and feels brand new! As you enter this home, you will be immediately impressed with the like new flooring throughout. The updated kitchen features stainless steel appliances and ample counter and cupboard space. The living room includes a picture window showcasing amazing mountain views. Moving downstairs you will find another family room and additional bedrooms. Among the many updates you will find recessed lighting, central A/C, new windows and a tankless water heater. The exterior includes irrigation rights, garden beds, a chicken coop and a heated and finished 1,700 sq ft shop. With amazing views, trees galore and privacy, this location has it all!"
+}
+},
+
+{
+"id":"riverton_006",
+"market":{"city":"Riverton","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":339900,
+"beds":3,
+"baths":2,
+"sqft":1669,
+"property_subtype":"single-family",
+"features":[
+"open concept",
+"kitchen island",
+"walk in closets",
+"soaking tub",
+"fenced yard",
+"heated garage"
+]},
+"output":{
+"headline":"One-Level Custom Riverton Home with Heated Garage and Spacious Kitchen",
+"mls_description":"One level, one owner, custom built home! Be prepared to be blown away when you step through the front door of this exquisite home! The open concept living room features luxury vinyl plank flooring—perfect for entertaining guests or family. The custom kitchen includes a large island, soft close cabinets, stainless steel appliances and a pantry. The primary suite includes two walk-in closets along with a bathroom featuring dual vanities, a soaking tub and a tiled shower. On the opposite end of the home you will find two additional bedrooms and another full bathroom. Outside you will find a privacy fenced backyard with automatic sprinklers and an oversized heated two car garage."
+}
+},
+
+{
+"id":"riverton_007",
+"market":{"city":"Riverton","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":475000,
+"beds":3,
+"baths":2,
+"sqft":2110,
+"property_subtype":"rural residential",
+"features":[
+"vaulted ceilings",
+"solar panels",
+"private well",
+"40x60 shop",
+"lean to addition",
+"horse friendly property",
+"three lots included"
+]},
+"output":{
+"headline":"Riverton Home with Shop, Solar Panels, and Three Included Lots",
+"mls_description":"Fantastic Home with tons of added perks! This 3 Bed, 2 Bath Home has a very accommodating floor plan which includes a primary suite and an open layout living room/kitchen area with vaulted ceilings. You will love the newer windows, central A/C and the Bonus Room addition! Keep your utility costs down with a private well and solar panels. In addition to the 2 car garage, there is also a 40x60 shop with a covered lean to addition. With loafing sheds, this property is horse friendly as well. There are three lots included in the listing price—keep them all together or sell one later for extra value."
+}
+},
+
+{
+"id":"riverton_008",
+"market":{"city":"Riverton","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":169000,
+"beds":2,
+"baths":1,
+"sqft":780,
+"property_subtype":"single-family",
+"features":[
+"new roof 2023",
+"refinished hardwood floors",
+"fenced yard",
+"automatic sprinklers",
+"new blinds",
+"on demand water heater"
+]},
+"output":{
+"headline":"Charming Riverton Home with Updated Interior and Fenced Backyard",
+"mls_description":"This home is too cute! As you pull up to the front of this home you will be impressed with the well maintained yard and fantastic curb appeal. The exterior features a recently painted finish, a new roof in 2023 and a privacy fenced backyard with automatic sprinklers and beautiful landscaping. Inside you will find refinished hardwood floors in the living room and bedrooms. Additional upgrades include new ceiling fans, added insulation, new blinds and an on demand water heater. This home is move-in ready and a true gem!"
+}
+},
+
+{
+"id":"riverton_009",
+"market":{"city":"Riverton","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":249500,
+"beds":3,
+"baths":2,
+"sqft":1680,
+"property_subtype":"single-family",
+"features":[
+"newer flooring",
+"central air",
+"bonus den office",
+"fenced yard",
+"back deck",
+"28x30 garage"
+]},
+"output":{
+"headline":"Well-Kept Riverton Home with Detached Garage and Fenced Yard",
+"mls_description":"Well-kept 1 level home! This 3 Bed, 2 Bath property will feel like home the moment you walk through the front door. This 1,680 square foot home is move-in ready with newer flooring and kitchen appliances, central air and a dedicated laundry and mud room. You’re sure to love the master suite, large kitchen and the bonus den or office. A fenced yard, back deck, and 28x30 detached garage take this home from good to great!"
+}
+},
+
+{
+"id":"riverton_010",
+"market":{"city":"Riverton","state":"WY","county":"Fremont"},
+"property_summary":{
+"price":294000,
+"beds":4,
+"baths":2.5,
+"sqft":2286,
+"property_subtype":"single-family",
+"features":[
+"brick construction",
+"single owner",
+"heated garage",
+"oversized lot",
+"automatic sprinklers",
+"seller will include new roof"
+]},
+"output":{
+"headline":"Solid Brick Riverton Home with Heated Garage and Oversized Lot",
+"mls_description":"Strong and Sturdy! This fantastic brick home was built in 1960 and has only had one owner! You will immediately notice the solid construction and attention to detail throughout. This 4 Bed, 2.5 Bath home offers nearly 2,300 square feet of living area plus a heated two car garage. You’ll love the oversized lot and automatic sprinklers. Best of all, with an acceptable offer, the seller will include a new roof prior to closing!"
+}
+}
+]
