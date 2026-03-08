@@ -20,7 +20,7 @@ USER_PROMPT_FILE = BASE_DIR / "prompts" / "user_prompt_template.txt"
 
 
 # ---------------------------
-# Helpers
+# File / text helpers
 # ---------------------------
 def load_text_file(path: Path) -> str:
     return path.read_text(encoding="utf-8")
@@ -50,6 +50,9 @@ def clean_field(value) -> str:
     return text
 
 
+# ---------------------------
+# Few-shot helpers
+# ---------------------------
 def format_example(example: dict, index: int) -> str:
     market = example.get("market", {})
     summary = example.get("property_summary", {})
@@ -102,6 +105,9 @@ def build_few_shot_block(examples: list) -> str:
     return "\n\n".join(format_example(ex, i + 1) for i, ex in enumerate(examples))
 
 
+# ---------------------------
+# Prompt builders
+# ---------------------------
 def build_user_prompt(property_data: dict, examples: list) -> str:
     template = load_text_file(USER_PROMPT_FILE)
     few_shot_examples = build_few_shot_block(examples)
@@ -130,7 +136,110 @@ def build_user_prompt(property_data: dict, examples: list) -> str:
     )
 
 
-def build_rewrite_prompt(raw_text: str, city: str, tone: str, length: str, examples: list) -> str:
+def build_listing_prompt(property_data: dict, examples: list) -> str:
+    system_prompt = load_text_file(SYSTEM_PROMPT_FILE)
+    user_prompt = build_user_prompt(property_data, examples)
+
+    return f"""{system_prompt}
+
+{user_prompt}
+
+Additional rules:
+- Do not mention the absence of a feature unless it is clearly beneficial and explicitly relevant.
+- Do not mention "no basement" unless the user specifically wants that included.
+- The social_caption should be more engaging than the listing description, not just a shorter summary.
+- The social_caption should emphasize the strongest selling points in a more attention-grabbing but still professional way.
+
+Return valid JSON with exactly these keys:
+headline
+mls_description
+portal_description
+social_caption
+
+Requirements for social_caption:
+- 2 to 4 short sentences max
+- More engaging than the listing description
+- Focus on the strongest selling points
+- Sound appropriate for Facebook or Instagram
+- Include a light call to action
+- The final sentence should feel slightly more inviting and energetic than the MLS copy
+- A subtle exclamation point is acceptable in the final sentence when natural
+- Do not simply summarize the MLS description
+- Avoid cheesy clichés or overly exaggerated language
+"""
+
+
+def build_marketing_prompt(property_data: dict, examples: list) -> str:
+    few_shot_examples = build_few_shot_block(examples)
+
+    return f"""
+You are an AI marketing assistant for a residential real estate agent serving Fremont County, Wyoming, especially Riverton and Lander.
+
+Your job is to create a cohesive marketing package for a home listing using only the facts provided.
+
+Rules:
+- Use only the facts provided.
+- Do not invent features, views, neighborhood benefits, acreage details, or utilities.
+- Match the tone of a strong local realtor in Fremont County.
+- Keep the writing marketable, natural, and specific.
+- Avoid cheesy clichés like "dream home," "won't last long," or exaggerated fluff.
+- Do not mention the absence of features unless their absence is clearly beneficial and explicitly relevant.
+- Marketing copy should be more engaging than MLS copy, but still credible and professional.
+
+CURRENT PROPERTY
+
+Address: {clean_field(property_data.get("address", ""))}
+City: {clean_field(property_data.get("city", ""))}
+State: {clean_field(property_data.get("state", ""))}
+Price: {clean_field(property_data.get("price", ""))}
+Beds: {property_data.get("beds", "")}
+Baths: {property_data.get("baths", "")}
+Square Feet: {property_data.get("sqft", "")}
+Year Built: {clean_field(property_data.get("year_built", ""))}
+Property Subtype: {clean_field(property_data.get("property_subtype", ""))}
+Lot Size: {clean_field(property_data.get("lot_size", ""))}
+Garage: {clean_field(property_data.get("garage", ""))}
+Basement: {clean_field(property_data.get("basement", ""))}
+Shop / Outbuildings: {clean_field(property_data.get("shop_outbuildings", ""))}
+
+Interior Features:
+{list_to_bullets(property_data.get("interior_features", []))}
+
+Exterior Features:
+{list_to_bullets(property_data.get("exterior_features", []))}
+
+Recent Updates:
+{list_to_bullets(property_data.get("recent_updates", []))}
+
+Location Highlights:
+{list_to_bullets(property_data.get("location_highlights", []))}
+
+Tone: {property_data.get("tone", "professional")}
+Length: {property_data.get("length", "medium")}
+
+STYLE EXAMPLES
+
+{few_shot_examples}
+
+Return valid JSON with exactly these keys:
+facebook_post
+instagram_caption
+buyer_email
+sms_text
+property_highlights
+open_house_post
+
+Requirements:
+- facebook_post: 3 to 5 sentences, engaging and informative, suitable for a Facebook listing post
+- instagram_caption: 2 to 4 short sentences, more punchy and scroll-stopping, still professional
+- buyer_email: short email-style property announcement for interested buyers
+- sms_text: short text message blast, concise and natural
+- property_highlights: an array of 5 to 8 bullet-style highlight strings
+- open_house_post: a promotional post for an open house, even if no exact date/time is given; if not provided, write with placeholders like "Join us this weekend" instead of inventing specifics
+"""
+
+
+def build_rewrite_listing_prompt(raw_text: str, city: str, tone: str, length: str, examples: list) -> str:
     few_shot_examples = build_few_shot_block(examples)
 
     return f"""
@@ -182,7 +291,57 @@ Requirements for social_caption:
 """
 
 
-def generate_listing_copy(prompt: str) -> dict:
+def build_rewrite_marketing_prompt(raw_text: str, city: str, tone: str, length: str, examples: list) -> str:
+    few_shot_examples = build_few_shot_block(examples)
+
+    return f"""
+You are rewriting rough listing notes or pasted property text into a complete residential real estate marketing package.
+
+Target market:
+- Fremont County, Wyoming
+- Especially Riverton and Lander
+
+Instructions:
+- Use the pasted content only as source material.
+- Do not invent facts.
+- Turn rough notes into polished, marketable output.
+- Keep the tone professional, local, and credible.
+- Avoid generic fluff and cheesy clichés.
+
+Requested city context: {city}
+Requested tone: {tone}
+Requested length: {length}
+
+STYLE EXAMPLES
+
+{few_shot_examples}
+
+PASTED SOURCE MATERIAL
+
+{raw_text}
+
+Return valid JSON with exactly these keys:
+facebook_post
+instagram_caption
+buyer_email
+sms_text
+property_highlights
+open_house_post
+
+Requirements:
+- facebook_post: 3 to 5 sentences, engaging and informative
+- instagram_caption: 2 to 4 short sentences, punchy but professional
+- buyer_email: short email announcement
+- sms_text: concise text blast
+- property_highlights: an array of 5 to 8 bullet-style highlight strings
+- open_house_post: promotional open house copy using placeholders if date/time are not provided
+"""
+
+
+# ---------------------------
+# API call helper
+# ---------------------------
+def generate_json(prompt: str) -> dict:
     response = client.responses.create(
         model="gpt-5",
         input=prompt
@@ -236,7 +395,7 @@ def extract_section_items(text: str, section_name: str) -> list[str]:
 
 
 def parse_property_block(raw_text: str) -> dict:
-    data = {
+    return {
         "address": extract_labeled_value(raw_text, ["Address"]),
         "city": extract_labeled_value(raw_text, ["City"]),
         "state": extract_labeled_value(raw_text, ["State"]),
@@ -255,7 +414,6 @@ def parse_property_block(raw_text: str) -> dict:
         "recent_updates": extract_section_items(raw_text, "Recent Updates"),
         "location_highlights": extract_section_items(raw_text, "Location Highlights"),
     }
-    return data
 
 
 def safe_int(value: str, default: int = 0) -> int:
@@ -279,7 +437,7 @@ def render_copy_button(label: str, text: str, button_id: str):
     safe_text = json.dumps(text)
     components.html(
         f"""
-        <div style="margin-top: 2px; margin-bottom: 2px;">
+        <div style="margin-top:2px; margin-bottom:2px;">
             <button
                 onclick='navigator.clipboard.writeText({safe_text}).then(() => {{
                     const btn = document.getElementById("{button_id}");
@@ -310,7 +468,6 @@ def render_copy_button(label: str, text: str, button_id: str):
 def render_output_block(title: str, text: str, key_prefix: str, filename: str, height: int = 180):
     st.subheader(title)
     st.text_area(f"{title} Output", value=text, height=height, key=f"{key_prefix}_text")
-
     col1, col2 = st.columns([1, 1])
     with col1:
         render_copy_button(f"Copy {title}", text, f"{key_prefix}_copy_btn")
@@ -324,19 +481,56 @@ def render_output_block(title: str, text: str, key_prefix: str, filename: str, h
         )
 
 
-def build_combined_export(output: dict) -> str:
-    return f"""HEADLINE
-{output.get("headline", "")}
+def render_highlights_block(highlights: list, key_prefix: str):
+    text = "\n".join(f"• {item}" for item in highlights)
+    render_output_block("Property Highlights", text, key_prefix, "property_highlights.txt", height=180)
+
+
+def build_combined_export(listing_output: dict | None = None, marketing_output: dict | None = None) -> str:
+    sections = []
+
+    if listing_output:
+        sections.append(
+            f"""HEADLINE
+{listing_output.get("headline", "")}
 
 MLS DESCRIPTION
-{output.get("mls_description", "")}
+{listing_output.get("mls_description", "")}
 
 PORTAL DESCRIPTION
-{output.get("portal_description", "")}
+{listing_output.get("portal_description", "")}
 
 SOCIAL CAPTION
-{output.get("social_caption", "")}
+{listing_output.get("social_caption", "")}
 """
+        )
+
+    if marketing_output:
+        highlights = marketing_output.get("property_highlights", [])
+        highlights_text = "\n".join(f"• {item}" for item in highlights)
+
+        sections.append(
+            f"""FACEBOOK POST
+{marketing_output.get("facebook_post", "")}
+
+INSTAGRAM CAPTION
+{marketing_output.get("instagram_caption", "")}
+
+BUYER EMAIL
+{marketing_output.get("buyer_email", "")}
+
+SMS TEXT
+{marketing_output.get("sms_text", "")}
+
+PROPERTY HIGHLIGHTS
+{highlights_text}
+
+OPEN HOUSE POST
+{marketing_output.get("open_house_post", "")}
+"""
+        )
+
+    return "\n\n".join(sections)
 
 
 def reset_structured_form():
@@ -390,17 +584,17 @@ for key, value in default_fields.items():
 # ---------------------------
 # UI
 # ---------------------------
-st.set_page_config(page_title="Fremont County Listing Generator", page_icon="🏡")
-st.title("Fremont County Residential Listing Generator")
+st.set_page_config(page_title="Fremont County Residential AI", page_icon="🏡")
+st.title("Fremont County Residential AI")
 st.caption("AI generator tuned to Riverton / Lander / Fremont County style.")
 
-mode = st.radio(
+input_mode = st.radio(
     "Choose input mode",
     ["Structured Form", "Paste Existing Listing / Notes"],
     horizontal=True
 )
 
-if mode == "Structured Form":
+if input_mode == "Structured Form":
     st.subheader("Quick Paste Property Details")
     quick_paste = st.text_area(
         "Paste labeled property details here to auto-fill the form",
@@ -525,12 +719,19 @@ Location Highlights:
         recent_updates = st.text_area("Recent Updates (one per line)", key="recent_updates")
         location_highlights = st.text_area("Location Highlights (one per line)", key="location_highlights")
 
-        submitted = st.form_submit_button("Generate Listing Copy")
+        st.subheader("Choose what to generate")
+        gen_col1, gen_col2, gen_col3 = st.columns(3)
+        with gen_col1:
+            generate_listing = st.form_submit_button("Generate Listing Copy")
+        with gen_col2:
+            generate_marketing = st.form_submit_button("Generate Marketing Package")
+        with gen_col3:
+            generate_both = st.form_submit_button("Generate Both")
 
-    if submitted:
+    if generate_listing or generate_marketing or generate_both:
         try:
             if not api_key:
-                st.error("Missing OPENAI_API_KEY in .env file.")
+                st.error("Missing OPENAI_API_KEY in environment or deployment secrets.")
                 st.stop()
 
             all_examples = load_examples()
@@ -558,77 +759,43 @@ Location Highlights:
                 "length": length,
             }
 
-            system_prompt = load_text_file(SYSTEM_PROMPT_FILE)
-            user_prompt = build_user_prompt(property_data, selected_examples)
+            listing_output = None
+            marketing_output = None
 
-            final_prompt = f"""{system_prompt}
+            if generate_listing or generate_both:
+                with st.spinner("Generating listing copy..."):
+                    listing_prompt = build_listing_prompt(property_data, selected_examples)
+                    listing_output = generate_json(listing_prompt)
 
-{user_prompt}
-
-Additional rules:
-- Do not mention the absence of a feature unless it is clearly beneficial and explicitly relevant.
-- Do not mention "no basement" unless the user specifically wants that included.
-- The social_caption should be more engaging than the listing description, not just a shorter summary.
-- The social_caption should emphasize the strongest selling points in a more attention-grabbing but still professional way.
-
-Return valid JSON with exactly these keys:
-headline
-mls_description
-portal_description
-social_caption
-
-Requirements for social_caption:
-- 2 to 4 short sentences max
-- More engaging than the listing description
-- Focus on the strongest selling points
-- Sound appropriate for Facebook or Instagram
-- Include a light call to action
-- The final sentence should feel slightly more inviting and energetic than the MLS copy
-- A subtle exclamation point is acceptable in the final sentence when natural
-- Do not simply summarize the MLS description
-- Avoid cheesy clichés or overly exaggerated language
-"""
-
-            with st.spinner("Generating listing copy..."):
-                output = generate_listing_copy(final_prompt)
+            if generate_marketing or generate_both:
+                with st.spinner("Generating marketing package..."):
+                    marketing_prompt = build_marketing_prompt(property_data, selected_examples)
+                    marketing_output = generate_json(marketing_prompt)
 
             st.success("Done.")
 
-            render_output_block(
-                "Headline",
-                output["headline"],
-                "headline",
-                "headline.txt",
-                height=80
-            )
-            render_output_block(
-                "MLS Description",
-                output["mls_description"],
-                "mls",
-                "mls_description.txt",
-                height=220
-            )
-            render_output_block(
-                "Portal Description",
-                output["portal_description"],
-                "portal",
-                "portal_description.txt",
-                height=220
-            )
-            render_output_block(
-                "Social Caption",
-                output["social_caption"],
-                "social",
-                "social_caption.txt",
-                height=140
-            )
+            if listing_output:
+                st.header("Listing Copy")
+                render_output_block("Headline", listing_output["headline"], "headline", "headline.txt", height=80)
+                render_output_block("MLS Description", listing_output["mls_description"], "mls", "mls_description.txt", height=220)
+                render_output_block("Portal Description", listing_output["portal_description"], "portal", "portal_description.txt", height=220)
+                render_output_block("Social Caption", listing_output["social_caption"], "social", "social_caption.txt", height=140)
 
-            combined_export = build_combined_export(output)
-            st.subheader("Export All")
+            if marketing_output:
+                st.header("Marketing Package")
+                render_output_block("Facebook Post", marketing_output["facebook_post"], "facebook", "facebook_post.txt", height=180)
+                render_output_block("Instagram Caption", marketing_output["instagram_caption"], "instagram", "instagram_caption.txt", height=160)
+                render_output_block("Buyer Email", marketing_output["buyer_email"], "buyer_email", "buyer_email.txt", height=220)
+                render_output_block("SMS Text", marketing_output["sms_text"], "sms_text", "sms_text.txt", height=120)
+                render_highlights_block(marketing_output["property_highlights"], "property_highlights")
+                render_output_block("Open House Post", marketing_output["open_house_post"], "open_house_post", "open_house_post.txt", height=180)
+
+            combined_export = build_combined_export(listing_output, marketing_output)
+            st.header("Export All")
             st.download_button(
                 label="Download All Outputs",
                 data=combined_export,
-                file_name="listing_outputs.txt",
+                file_name="listing_marketing_package.txt",
                 mime="text/plain",
                 key="download_all_structured"
             )
@@ -647,12 +814,19 @@ else:
             placeholder="Paste the existing listing text or rough notes here..."
         )
 
-        submitted_rewrite = st.form_submit_button("Rewrite / Generate")
+        st.subheader("Choose what to generate")
+        gen_col1, gen_col2, gen_col3 = st.columns(3)
+        with gen_col1:
+            generate_listing_rw = st.form_submit_button("Generate Listing Copy")
+        with gen_col2:
+            generate_marketing_rw = st.form_submit_button("Generate Marketing Package")
+        with gen_col3:
+            generate_both_rw = st.form_submit_button("Generate Both")
 
-    if submitted_rewrite:
+    if generate_listing_rw or generate_marketing_rw or generate_both_rw:
         try:
             if not api_key:
-                st.error("Missing OPENAI_API_KEY in .env file.")
+                st.error("Missing OPENAI_API_KEY in environment or deployment secrets.")
                 st.stop()
 
             if not raw_text.strip():
@@ -662,54 +836,43 @@ else:
             all_examples = load_examples()
             selected_examples = select_examples(all_examples, city=city, max_examples=3)
 
-            final_prompt = build_rewrite_prompt(
-                raw_text=raw_text,
-                city=city,
-                tone=tone,
-                length=length,
-                examples=selected_examples,
-            )
+            listing_output = None
+            marketing_output = None
 
-            with st.spinner("Rewriting listing..."):
-                output = generate_listing_copy(final_prompt)
+            if generate_listing_rw or generate_both_rw:
+                with st.spinner("Generating listing copy..."):
+                    listing_prompt = build_rewrite_listing_prompt(raw_text, city, tone, length, selected_examples)
+                    listing_output = generate_json(listing_prompt)
+
+            if generate_marketing_rw or generate_both_rw:
+                with st.spinner("Generating marketing package..."):
+                    marketing_prompt = build_rewrite_marketing_prompt(raw_text, city, tone, length, selected_examples)
+                    marketing_output = generate_json(marketing_prompt)
 
             st.success("Done.")
 
-            render_output_block(
-                "Headline",
-                output["headline"],
-                "headline_rw",
-                "headline.txt",
-                height=80
-            )
-            render_output_block(
-                "MLS Description",
-                output["mls_description"],
-                "mls_rw",
-                "mls_description.txt",
-                height=220
-            )
-            render_output_block(
-                "Portal Description",
-                output["portal_description"],
-                "portal_rw",
-                "portal_description.txt",
-                height=220
-            )
-            render_output_block(
-                "Social Caption",
-                output["social_caption"],
-                "social_rw",
-                "social_caption.txt",
-                height=140
-            )
+            if listing_output:
+                st.header("Listing Copy")
+                render_output_block("Headline", listing_output["headline"], "headline_rw", "headline.txt", height=80)
+                render_output_block("MLS Description", listing_output["mls_description"], "mls_rw", "mls_description.txt", height=220)
+                render_output_block("Portal Description", listing_output["portal_description"], "portal_rw", "portal_description.txt", height=220)
+                render_output_block("Social Caption", listing_output["social_caption"], "social_rw", "social_caption.txt", height=140)
 
-            combined_export = build_combined_export(output)
-            st.subheader("Export All")
+            if marketing_output:
+                st.header("Marketing Package")
+                render_output_block("Facebook Post", marketing_output["facebook_post"], "facebook_rw", "facebook_post.txt", height=180)
+                render_output_block("Instagram Caption", marketing_output["instagram_caption"], "instagram_rw", "instagram_caption.txt", height=160)
+                render_output_block("Buyer Email", marketing_output["buyer_email"], "buyer_email_rw", "buyer_email.txt", height=220)
+                render_output_block("SMS Text", marketing_output["sms_text"], "sms_rw", "sms_text.txt", height=120)
+                render_highlights_block(marketing_output["property_highlights"], "highlights_rw")
+                render_output_block("Open House Post", marketing_output["open_house_post"], "open_house_rw", "open_house_post.txt", height=180)
+
+            combined_export = build_combined_export(listing_output, marketing_output)
+            st.header("Export All")
             st.download_button(
                 label="Download All Outputs",
                 data=combined_export,
-                file_name="listing_outputs.txt",
+                file_name="listing_marketing_package.txt",
                 mime="text/plain",
                 key="download_all_rewrite"
             )
